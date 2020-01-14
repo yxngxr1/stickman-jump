@@ -127,10 +127,8 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 if self.playing:
-                    pg.mixer.music.stop()
                     self.playing = False
                 self.running = False
-                pg.mixer.music.stop()
                 pg.quit()
 
             if event.type == self.music_end:
@@ -327,29 +325,36 @@ class Game:
     def wait_for_press(self, buttons, window):
         waiting = True
         while waiting:
-            self.clock.tick(FPS)
-            for event in pg.event.get():
-                # если проигрывание музыки завершено, запустить другую
-                if event.type == self.music_end:
-                    if window == 'menu' or 'setting':
-                        self.play_start_music()
+            if self.running:
+                self.clock.tick(FPS)
+                for event in pg.event.get():
+                    # если проигрывание музыки завершено, запустить другую
+                    if event.type == self.music_end:
+                        if window == 'menu' or 'setting':
+                            self.play_start_music()
 
-                    if window == 'gameover':
-                        self.play_gameover_music()
+                        if window == 'gameover':
+                            self.play_gameover_music()
 
-                if event.type == pg.QUIT:
-                    pg.mixer.music.stop()
-                    self.running = False
-                    pg.quit()
-                    return
+                    if event.type == pg.QUIT:
+                        if window == 'menu':
+                            self.menu_screen_run = False
+                        elif window == 'setting':
+                            self.settings_screen_run = False
+                        elif window == 'gameover':
+                            self.gameover_screen_run = False
 
-                for button in buttons:
-                    button.ishover()
-                    if event.type == pg.MOUSEBUTTONDOWN:
-                        if button.ispressed():
-                            return button
+                        self.running = False
+                        pg.quit()
+                        return
 
-            pg.display.flip()
+                    for button in buttons:
+                        button.ishover()
+                        if event.type == pg.MOUSEBUTTONDOWN:
+                            if button.ispressed():
+                                return button
+
+                pg.display.flip()
 
     def draw_text(self, text, size, color, x, y):
         font = pg.font.Font(self.font_name, size)
