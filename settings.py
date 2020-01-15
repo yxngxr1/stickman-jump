@@ -29,10 +29,10 @@ PLAYER_JUMP = 20
 
 # цвета
 BLACK = (0, 0, 0)
-GREY = (10, 10, 10)
+GREY = (20, 20, 20)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
-GREEN = (0, 255, 0)
+GREEN = (0, 225, 0)
 BLUE = (0, 0, 255)
 LIGHTGREY = (50, 50, 50)
 LIGHTRED = (255, 100, 100)
@@ -40,11 +40,11 @@ LIGHTGREEN = (100, 255, 100)
 LIGHTBLUE = (50, 50, 255)
 YELLOW = (255, 255, 0)
 PINK = (255, 200, 200)
-VIOLET = (255, 0, 200)
+VIOLET = (255, 0, 150)
 
 # test map
-START_MAP = [(0, HEIGHT - 100, WIDTH, 100),
-            (50, HEIGHT - 200, 100, 20),
-            (300, HEIGHT - 300, 100, 20),
-            (50, HEIGHT - 400, 100, 20),
-            (300, HEIGHT - 550, 100, 20),]
+START_MAP = [(GREY, 0, HEIGHT - 100, WIDTH, 100),
+            (LIGHTGREY, 50, HEIGHT - 220, 100, 20),
+            (LIGHTGREY, 300, HEIGHT - 340, 100, 20),
+            (LIGHTGREY, 50, HEIGHT - 460, 100, 20),
+            (LIGHTGREY, 300, HEIGHT - 580, 100, 20),]

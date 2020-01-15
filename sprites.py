@@ -127,10 +127,20 @@ class Player(pg.sprite.Sprite):
 
 
 class Platform(pg.sprite.Sprite):
-    def __init__(self, x, y, w, h):
+    def __init__(self, color, x, y, w, h):
         pg.sprite.Sprite.__init__(self)
+        self.x, self.y = x, y
+        self.w, self.h = w, h
+        self.color = color
         self.image = pg.Surface((w, h))
-        self.image.fill((GREY))
+        self.image.set_colorkey((BLACK))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+    def update(self):
+        if self.color == GREY:
+            pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h])
+
+        else:
+            pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h], 5)

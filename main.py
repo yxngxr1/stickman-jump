@@ -1,6 +1,5 @@
 import pygame as pg
 import random
-from threading import Thread
 from components import *
 from settings import *
 from sprites import *
@@ -20,44 +19,31 @@ class Game:
         self.music_on_off = True
         self.str_sound_on_off = "Выключить звуки"
         self.str_music_on_off = "Выключить музыку"
+        self.last_music = None
         self.load_data()
 
     def start(self):
-        self.play_start_music()
+        self.play_music('menu')
         self.menu_screen()
 
-    def play_start_music(self):
-        self.last_music = random.choice(MUSIC_MENU)
-        self.music_end = pg.USEREVENT+1
+    def play_music(self, window):
+        self.music_end = pg.USEREVENT + 1
         pg.mixer.music.set_endevent(self.music_end)
-        file = random.choice(MUSIC_MENU)
-        while file == self.last_music:
-            file = random.choice(MUSIC_MENU)
-        pg.mixer.music.load(file)
-        pg.mixer.music.set_volume(self.music_volume)
-        pg.mixer.music.play(1)
+        
+        if window == 'menu':
+            music = MUSIC_MENU
+        elif window == 'gameplay':
+            music = MUSIC_GAMEPLAY
+        else:
+            music = MUSIC_GAMEOVER
 
-    def play_game_music(self):
-        self.last_music = random.choice(MUSIC_GAMEPLAY)
-        self.music_end = pg.USEREVENT+2
-        pg.mixer.music.set_endevent(self.music_end)
-        file = random.choice(MUSIC_GAMEPLAY)
+        file = random.choice(music)
         while file == self.last_music:
-            file = random.choice(MUSIC_GAMEPLAY)
+            file = random.choice(music)
         pg.mixer.music.load(file)
         pg.mixer.music.set_volume(self.music_volume)
         pg.mixer.music.play(1)
-
-    def play_gameover_music(self):
-        self.last_music = random.choice(MUSIC_GAMEOVER)
-        self.music_end = pg.USEREVENT+3
-        pg.mixer.music.set_endevent(self.music_end)
-        file = random.choice(MUSIC_GAMEOVER)
-        while file == self.last_music:
-            file = random.choice(MUSIC_GAMEOVER)
-        pg.mixer.music.load(file)
-        pg.mixer.music.set_volume(self.music_volume)
-        pg.mixer.music.play(1)
+        self.last_music = file
 
     def load_data(self):
         # загрузка рекорда
@@ -102,7 +88,7 @@ class Game:
         self.run()
 
     def run(self):
-        self.play_game_music()
+        self.play_music('gameplay')
 
         # Главный игровой цикл
         self.playing = True
@@ -132,7 +118,7 @@ class Game:
                 pg.quit()
 
             if event.type == self.music_end:
-                self.play_game_music()
+                self.play_music('gameplay')
 
     def update(self):
         self.all_sprites.update()
@@ -160,11 +146,12 @@ class Game:
 
         # добавление новых платформ
         while len(self.platforms) < 6:
-            w = random.choice([40, 60, 80, 100])
+            w = random.choice([60, 80, 100])
             h = 20
             x = random.randrange(20, WIDTH - w - 20)
             y = -20
-            p = Platform(x, y, w, h)
+            color = random.choice([BLUE, LIGHTBLUE, RED, GREEN, LIGHTGREY])
+            p = Platform(color, x, y, w, h)
             self.platforms.add(p)
             self.all_sprites.add(p)
 
@@ -205,7 +192,6 @@ class Game:
 
         while self.menu_screen_run:
             button_pressed = self.wait_for_press(buttons, 'menu')
-
             if button_pressed == self.btn_play:
                 self.menu_screen_run = False
                 pg.mixer.music.fadeout(FADE_OUT)
@@ -218,7 +204,6 @@ class Game:
             elif button_pressed == self.btn_exit_menu:
                 self.menu_screen_run = False
                 self.running = False
-                pg.mixer.music.stop()
                 pg.quit()
 
             if self.running:
@@ -269,7 +254,7 @@ class Game:
 
     def gameover_screen(self):
         self.gameover_screen_run = True
-        self.play_gameover_music()
+        self.play_music('gameover')
         self.screen.fill(LIGHTGREY)
         self.draw_text("GAME OVER", 82, RED, WIDTH // 2, 20)
         self.draw_text("Очков: " + str(self.score), 24, WHITE, WIDTH // 2, 120)
@@ -331,10 +316,10 @@ class Game:
                     # если проигрывание музыки завершено, запустить другую
                     if event.type == self.music_end:
                         if window == 'menu' or 'setting':
-                            self.play_start_music()
+                            self.play_music('menu')
 
                         if window == 'gameover':
-                            self.play_gameover_music()
+                            self.play_music('gameover')
 
                     if event.type == pg.QUIT:
                         if window == 'menu':

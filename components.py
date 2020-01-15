@@ -58,12 +58,9 @@ class Button:
         pressed = pos[0] in range(self.x_rect, self.x_rect + self.w) \
               and pos[1] in range(self.y_rect, self.y_rect + self.h)
         if pressed:
-            if not self.OnButton:
-                self.game.press_sound.play()
-            self.OnButton = True
+            self.game.press_sound.play()
             self.draw_rect_press()
         else:
-            self.OnButton = False
             self.draw_rect()
 
         return pressed
