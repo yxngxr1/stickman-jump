@@ -1,8 +1,8 @@
 import pygame as pg
 import random
-from components import *
+from components import Button
 from settings import *
-from sprites import *
+from sprites import Platform, Player, Background
 
 
 class Game:
@@ -52,7 +52,7 @@ class Game:
         with open(HIGHSCORE, 'r') as file:
             try:
                 self.highscore = int(file.read())
-            except:
+            except ValueError:
                 self.highscore = 0
 
             self.jump_sound = pg.mixer.Sound(SOUND_JUMP)
@@ -80,7 +80,7 @@ class Game:
         self.all_sprites = pg.sprite.Group()
         self.platforms = pg.sprite.Group()
 
-        self.background1 = Background(self, 0, -HEIGHT + 7)
+        self.background1 = Background(self, 0, -HEIGHT)
         self.background2 = Background(self, 0, 0)
         self.player = Player(self)
         self.all_sprites.add(self.background1, self.background2, self.player)
@@ -102,13 +102,13 @@ class Game:
 
             # обязательная проверка на сохранность игрового процесса
             if self.playing:
-                self.events() # проверка событий
+                self.events()  # проверка событий
 
             if self.playing:
-                self.update() # обновление всех событий в игре
+                self.update()  # обновление всех событий в игре
 
             if self.playing:
-                self.draw() # отрисовка игрового мира
+                self.draw()  # отрисовка игрового мира
 
         if self.running:
             pg.mixer.music.fadeout(FADE_OUT - 200 if FADE_OUT > 200 else 0)
@@ -132,8 +132,9 @@ class Game:
         if self.player.vel.y > 0:
             hits = pg.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
-                if self.player.pos.y < hits[0].rect.bottom + hits[0].rect.height // 2:
-                    self.player.pos.y = hits[0].rect.top
+                object = hits[0].rect
+                if self.player.pos.y < object.bottom + object.height // 2:
+                    self.player.pos.y = object.top
                     self.player.vel.y = 0
                     self.player.OnGround = True
             else:
@@ -142,8 +143,8 @@ class Game:
         # смещение мира по отношению к игроку (камера)
         if self.player.pos.y <= WIDTH // 2:
             self.player.pos.y += abs(self.player.vel.y)
-            self.background1.rect.y += abs(int(self.player.vel.y * 0.2))
-            self.background2.rect.y += abs(int(self.player.vel.y) * 0.2)
+            self.background1.rect.y += abs(int(self.player.vel.y * 0.4))
+            self.background2.rect.y += abs(int(self.player.vel.y * 0.4))
             for i in self.platforms:
                 i.rect.y += abs(self.player.vel.y)
                 # удаление платформ за экраном
@@ -164,7 +165,7 @@ class Game:
 
         # смерть игрока
         if self.player.rect.top > HEIGHT:
-            if self.death == False:
+            if self.death is False:
                 self.death = True
                 self.death_sound.play()
 
@@ -176,7 +177,7 @@ class Game:
                     i.kill()
 
         if len(self.platforms) == 0:
-             self.playing = False
+            self.playing = False
 
     def draw(self):
         self.all_sprites.draw(self.screen)
@@ -236,15 +237,20 @@ class Game:
             if button_pressed == self.btn_sound_on_off:
                 self.sound_on_off = True if not self.sound_on_off else False
                 self.str_sound_on_off = "Включить звуки" if not self.sound_on_off else "Выключить звуки"
-                self.change_volume([0, 0, 0, 0], self.music_volume) if not self.sound_on_off else self.change_volume(SOUND_VOLUME, self.music_volume)
+                if not self.sound_on_off:
+                    self.change_volume([0, 0, 0, 0], self.music_volume)
+                else:
+                    self.change_volume(SOUND_VOLUME, self.music_volume)
                 self.settings_screen()
 
             elif button_pressed == self.btn_music_on_off:
                 self.music_on_off = True if not self.music_on_off else False
                 self.str_music_on_off = "Включить музыку" if not self.music_on_off else "Выключить музыку"
-                self.change_volume(self.sound_volume, 0) if not self.music_on_off else self.change_volume(self.sound_volume, MUSIC_VOLUME)
+                if not self.music_on_off:
+                    self.change_volume(self.sound_volume, 0)
+                else:
+                    self.change_volume(self.sound_volume, MUSIC_VOLUME)
                 self.settings_screen()
-
 
             elif button_pressed == self.btn_reset:
                 self.highscore = 0

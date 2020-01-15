@@ -1,17 +1,18 @@
 import pygame as pg
-from pygame import mixer
+
 
 class Button:
-    def __init__(self, game, text, size_font, size_rect, color, color_hover, color_press, x, y):
+    def __init__(self, game, text, s_font, s_rect, c, c_hover, c_press, x, y):
         self.game = game
         self.text = text
-        self.size_font = size_font
-        self.w, self.h = size_rect
-        self.color = color
-        self.color_hover = color_hover
-        self.color_press = color_press
+        self.size_font = s_font
+        self.w, self.h = s_rect
+        self.color = c
+        self.color_hover = c_hover
+        self.color_press = c_press
         self.x, self.y = x, y
-        self.x_rect, self.y_rect = self.x - self.w // 2, self.y - (self.h - self.size_font) // 3
+        self.x_rect = self.x - self.w // 2
+        self.y_rect = self.y - (self.h - self.size_font) // 3
         self.OnButton = False
         self.draw_text()
         self.draw_rect()
@@ -56,7 +57,7 @@ class Button:
     def ispressed(self):
         pos = pg.mouse.get_pos()
         pressed = pos[0] in range(self.x_rect, self.x_rect + self.w) \
-              and pos[1] in range(self.y_rect, self.y_rect + self.h)
+            and pos[1] in range(self.y_rect, self.y_rect + self.h)
         if pressed:
             self.game.press_sound.play()
             self.draw_rect_press()

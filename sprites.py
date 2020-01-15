@@ -1,12 +1,14 @@
 from settings import *
 import pygame as pg
 import os
-vec = pg.math.Vector2 # 2d - вектор
+vec = pg.math.Vector2  # 2d - вектор
+
 
 def load_image(name):
     fullname = os.path.join('images', name)
     image = pg.image.load(fullname).convert_alpha()
     return image
+
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game):
@@ -31,8 +33,8 @@ class Player(pg.sprite.Sprite):
         self.height = self.rect[3]
         self.rect.midbottom = (WIDTH / 2,HEIGHT - HEIGHT / 4)
         self.pos = vec(WIDTH / 2,HEIGHT - HEIGHT / 4)
-        self.vel = vec(0, 0) # скорость
-        self.acc = vec(0, 0) # ускорение
+        self.vel = vec(0, 0)  # скорость
+        self.acc = vec(0, 0)  # ускорение
 
 
     def jump(self):
@@ -154,4 +156,4 @@ class Background(pg.sprite.Sprite):
 
     def update(self):
         if self.rect.y >= HEIGHT:
-            self.rect.y = -HEIGHT + 7
+            self.rect.y = -HEIGHT

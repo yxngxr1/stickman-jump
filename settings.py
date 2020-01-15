@@ -15,15 +15,15 @@ BACKGROUND = 'background.png'
 MUSIC_MENU = ['sounds/Death Note OST - Solitude.ogg', "sounds/Death Note OST - L's Theme B.ogg"]
 MUSIC_GAMEPLAY = ['sounds/Mortal Combat.ogg', "sounds/Tony Igy - Pentagramma.ogg"]
 MUSIC_GAMEOVER = ['sounds/Grouplove - Back in the 90s.ogg', "sounds/Maximum the Hormone - What's up, people!.ogg"]
-MUSIC_VOLUME = 0.15 # громкость музыки
-FADE_OUT = 300 # постепенное уменьшение громкости, перед завершением проигрывания
+MUSIC_VOLUME = 0.15  # громкость музыки
+FADE_OUT = 300  # постепенное уменьшение громкости, перед завершением музыки
 
 # звуки
 SOUND_JUMP = 'sounds/jump.wav'
 SOUND_DEATH = 'sounds/death.ogg'
 SOUND_BTN_HOVER = 'sounds/hover.wav'
 SOUND_BTN_PRESS = 'sounds/press.wav'
-SOUND_VOLUME = [0.03, 0.15, 0.5, 0.6] # громкость звуков (для каждого)
+SOUND_VOLUME = [0.03, 0.15, 0.5, 0.6]  # громкость звуков (для каждого)
 
 # свойства игрока
 PLAYER_ACCELERATION = 1.2
@@ -48,7 +48,7 @@ VIOLET = (255, 0, 150)
 
 # начальная карта
 START_MAP = [(GREY, 0, HEIGHT - 100, WIDTH, 100),
-            (LIGHTGREY, 50, HEIGHT - 220, 100, 20),
-            (LIGHTGREY, 300, HEIGHT - 340, 100, 20),
-            (LIGHTGREY, 50, HEIGHT - 460, 100, 20),
-            (LIGHTGREY, 300, HEIGHT - 580, 100, 20),]
+             (LIGHTGREY, 50, HEIGHT - 220, 100, 20),
+             (LIGHTGREY, 300, HEIGHT - 340, 100, 20),
+             (LIGHTGREY, 50, HEIGHT - 460, 100, 20),
+             (LIGHTGREY, 300, HEIGHT - 580, 100, 20)]
