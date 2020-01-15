@@ -11,6 +11,8 @@ class Game:
         pg.mixer.pre_init(44100, -16, 1, 512)
         pg.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
+        self.screen.set_colorkey((255, 255, 255))
+        pg.display.set_icon(pg.image.load(ICON))
         pg.display.set_caption(TITLE)
         self.font_name = pg.font.match_font(FONT)
         self.clock = pg.time.Clock()
@@ -29,7 +31,7 @@ class Game:
     def play_music(self, window):
         self.music_end = pg.USEREVENT + 1
         pg.mixer.music.set_endevent(self.music_end)
-        
+
         if window == 'menu':
             music = MUSIC_MENU
         elif window == 'gameplay':
@@ -74,11 +76,14 @@ class Game:
         # Начать новую игру
         self.score = 0
         self.death = False
+        self.bg_count = 0
         self.all_sprites = pg.sprite.Group()
         self.platforms = pg.sprite.Group()
 
+        self.background1 = Background(self, 0, -HEIGHT + 7)
+        self.background2 = Background(self, 0, 0)
         self.player = Player(self)
-        self.all_sprites.add(self.player)
+        self.all_sprites.add(self.background1, self.background2, self.player)
 
         for i in START_MAP:
             p = Platform(*i)
@@ -137,6 +142,8 @@ class Game:
         # смещение мира по отношению к игроку (камера)
         if self.player.pos.y <= WIDTH // 2:
             self.player.pos.y += abs(self.player.vel.y)
+            self.background1.rect.y += abs(int(self.player.vel.y * 0.2))
+            self.background2.rect.y += abs(int(self.player.vel.y) * 0.2)
             for i in self.platforms:
                 i.rect.y += abs(self.player.vel.y)
                 # удаление платформ за экраном
@@ -172,7 +179,6 @@ class Game:
              self.playing = False
 
     def draw(self):
-        self.screen.blit(pg.image.load('images/background/bg.png'), (0, 0))
         self.all_sprites.draw(self.screen)
         self.draw_text(f'Набрано очков: {self.score}', 28, RED, WIDTH / 2, 15)
         pg.display.flip()

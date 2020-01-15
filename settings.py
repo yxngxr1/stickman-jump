@@ -7,6 +7,10 @@ FONT = 'arial'
 HIGHSCORE = 'data/highscore.txt'
 BUTTON_SIZE = (350, 75)
 
+# иконка
+ICON = 'images/icon.png'
+BACKGROUND = 'background.png'
+
 # музыка
 MUSIC_MENU = ['sounds/Death Note OST - Solitude.ogg', "sounds/Death Note OST - L's Theme B.ogg"]
 MUSIC_GAMEPLAY = ['sounds/Mortal Combat.ogg', "sounds/Tony Igy - Pentagramma.ogg"]
@@ -22,9 +26,9 @@ SOUND_BTN_PRESS = 'sounds/press.wav'
 SOUND_VOLUME = [0.03, 0.15, 0.5, 0.6] # громкость звуков (для каждого)
 
 # свойства игрока
-PLAYER_ACCELERATION = 1.5
-PLAYER_FRICTION = 0.12
-PLAYER_GRAVITY = 1.1
+PLAYER_ACCELERATION = 1.2
+PLAYER_FRICTION = 0.15
+PLAYER_GRAVITY = 1
 PLAYER_JUMP = 20
 
 # цвета
@@ -42,7 +46,7 @@ YELLOW = (255, 255, 0)
 PINK = (255, 200, 200)
 VIOLET = (255, 0, 150)
 
-# test map
+# начальная карта
 START_MAP = [(GREY, 0, HEIGHT - 100, WIDTH, 100),
             (LIGHTGREY, 50, HEIGHT - 220, 100, 20),
             (LIGHTGREY, 300, HEIGHT - 340, 100, 20),

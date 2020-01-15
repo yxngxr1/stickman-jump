@@ -129,7 +129,6 @@ class Player(pg.sprite.Sprite):
 class Platform(pg.sprite.Sprite):
     def __init__(self, color, x, y, w, h):
         pg.sprite.Sprite.__init__(self)
-        self.x, self.y = x, y
         self.w, self.h = w, h
         self.color = color
         self.image = pg.Surface((w, h))
@@ -141,6 +140,18 @@ class Platform(pg.sprite.Sprite):
     def update(self):
         if self.color == GREY:
             pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h])
-
         else:
             pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h], 5)
+
+
+class Background(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        pg.sprite.Sprite.__init__(self)
+        self.image = load_image(BACKGROUND)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self):
+        if self.rect.y >= HEIGHT:
+            self.rect.y = -HEIGHT + 7
