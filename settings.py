@@ -20,16 +20,21 @@ FADE_OUT = 300  # постепенное уменьшение громкости
 
 # звуки
 SOUND_JUMP = 'sounds/jump.wav'
+SOUND_POWERUP = 'sounds/powerup.wav'
 SOUND_DEATH = 'sounds/death.ogg'
 SOUND_BTN_HOVER = 'sounds/hover.wav'
 SOUND_BTN_PRESS = 'sounds/press.wav'
-SOUND_VOLUME = [0.03, 0.15, 0.5, 0.6]  # громкость звуков (для каждого)
+SOUND_VOLUME = [0.03, 0.6, 0.15, 0.5, 0.6]  # громкость звуков (для каждого)
 
 # свойства игрока
 PLAYER_ACCELERATION = 1.2
 PLAYER_FRICTION = 0.15
 PLAYER_GRAVITY = 1
 PLAYER_JUMP = 20
+
+# бонусы
+POWERUP_JUMP = 40
+POWERUP_GRAVITY = 0.35
 
 # цвета
 BLACK = (0, 0, 0)
@@ -40,11 +45,11 @@ GREEN = (0, 225, 0)
 BLUE = (0, 0, 255)
 LIGHTGREY = (50, 50, 50)
 LIGHTRED = (255, 100, 100)
-LIGHTGREEN = (100, 255, 100)
-LIGHTBLUE = (50, 50, 255)
-YELLOW = (255, 255, 0)
+LIGHTGREEN = (60, 255, 60)
+LIGHTBLUE = (40, 40, 255)
+YELLOW = (240, 180, 0)
 PINK = (255, 200, 200)
-VIOLET = (255, 0, 150)
+VIOLET = (150, 0, 240)
 
 # начальная карта
 START_MAP = [(GREY, 0, HEIGHT - 100, WIDTH, 100),

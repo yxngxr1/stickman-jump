@@ -1,5 +1,6 @@
 from settings import *
 import pygame as pg
+from pygame import gfxdraw
 import random
 import os
 vec = pg.math.Vector2  # 2d - вектор
@@ -13,7 +14,8 @@ def load_image(name):
 
 class Player(pg.sprite.Sprite):
     def __init__(self, game):
-        pg.sprite.Sprite.__init__(self)
+        self.groups = game.all_sprites
+        pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.walkRight_images = [load_image('hero/{}.png'.format(i)) for i in range(1, 10)]
         self.walkLeft_images = [pg.transform.flip(load_image('hero/{}.png'.format(i)), True, False) for i in range(1, 10)]
@@ -44,17 +46,17 @@ class Player(pg.sprite.Sprite):
             if self.game.player.pos.y < hits[0].rect.bottom:
                 self.game.jump_sound.play()
 
-                if hits[0].color == WHITE:
+                if hits[0].color == YELLOW:
                     hits[0].clear = True
 
                 elif hits[0].color == RED:
-                    self.vel.y = -PLAYER_JUMP * 1.3
+                    self.vel.y = -PLAYER_JUMP * 1.4
                     return
 
                 self.vel.y = -PLAYER_JUMP
 
     def update(self):
-        self.acc = vec(0, PLAYER_GRAVITY)
+        self.acc = vec(0, self.game.gravity)
         keys = pg.key.get_pressed()
 
         if keys[pg.K_SPACE]:
@@ -141,14 +143,15 @@ class Player(pg.sprite.Sprite):
 
 class Platform(pg.sprite.Sprite):
     def __init__(self, game, color, x, y, w, h):
-        pg.sprite.Sprite.__init__(self)
+        self.groups = game.all_sprites, game.platforms
+        pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.w, self.h = w, h
         self.color = color
         if self.color == GREEN:
             self.run_platform = True
             self.vel = random.choice(range(2, 4))
-        if self.color == WHITE:
+        if self.color == YELLOW:
             self.clearcount = 0
             self.clear = False
         self.image = pg.Surface((w, h))
@@ -156,10 +159,13 @@ class Platform(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        if random.randrange(20) == 1:
+            Powerup(self.game, self)
 
     def update(self):
         if self.color == GREY:
             pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h])
+
         elif self.color == GREEN:
             self.rect.x += self.vel
             if self.rect.x >= WIDTH - self.w:
@@ -168,22 +174,22 @@ class Platform(pg.sprite.Sprite):
                 self.vel = abs(self.vel)
             pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h], 5)
 
-        elif self.color == WHITE:
+        elif self.color == YELLOW:
             if self.clear:
                 self.clearcount += 1
                 if self.clearcount > FPS // 2:
                     self.kill()
                     self.game.add_new_platform(-270)
-            pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h])
+            pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h], 5)
+
         else:
             pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h], 5)
 
 
-
-
 class Background(pg.sprite.Sprite):
     def __init__(self, game, x, y):
-        pg.sprite.Sprite.__init__(self)
+        self.groups = game.all_sprites
+        pg.sprite.Sprite.__init__(self, self.groups)
         self.image = load_image(BACKGROUND)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -192,3 +198,29 @@ class Background(pg.sprite.Sprite):
     def update(self):
         if self.rect.y >= HEIGHT:
             self.rect.y = -HEIGHT
+
+
+class Powerup(pg.sprite.Sprite):
+    def __init__(self, game, platform):
+        self.groups = game.all_sprites, game.powerups
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.platform = platform
+        self.type = random.choice(['big jump', 'small gravity'])
+        self.image = pg.Surface((40, 40))
+        self.image.set_colorkey((BLACK))
+        self.rect = self.image.get_rect()
+        self.rect.centerx = self.platform.rect.centerx
+        self.rect.bottom = self.platform.rect.top - 10
+
+    def update(self):
+        self.rect.centerx = self.platform.rect.centerx
+        self.rect.bottom = self.platform.rect.top - 10
+        if self.type == 'big jump':
+            gfxdraw.aacircle(self.image, 12, 12, 12, YELLOW)
+            gfxdraw.filled_circle(self.image, 12, 12, 12, YELLOW)
+        elif self.type == 'small gravity':
+            gfxdraw.aacircle(self.image, 12, 12, 12, VIOLET)
+            gfxdraw.filled_circle(self.image, 12, 12, 12, VIOLET)
+        if not self.game.platforms.has(self.platform):
+            self.kill()
