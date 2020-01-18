@@ -1,5 +1,6 @@
 from settings import *
 import pygame as pg
+import random
 import os
 vec = pg.math.Vector2  # 2d - вектор
 
@@ -42,6 +43,14 @@ class Player(pg.sprite.Sprite):
         if hits:
             if self.game.player.pos.y < hits[0].rect.bottom:
                 self.game.jump_sound.play()
+
+                if hits[0].color == WHITE:
+                    hits[0].clear = True
+
+                elif hits[0].color == RED:
+                    self.vel.y = -PLAYER_JUMP * 1.3
+                    return
+
                 self.vel.y = -PLAYER_JUMP
 
     def update(self):
@@ -49,8 +58,9 @@ class Player(pg.sprite.Sprite):
         keys = pg.key.get_pressed()
 
         if keys[pg.K_SPACE]:
-            self.jumping = True
-            self.jump()
+            if self.vel.y >= 0:
+                self.jumping = True
+                self.jump()
         else:
             self.jumping = False
             self.jumpcount = 0
@@ -64,6 +74,7 @@ class Player(pg.sprite.Sprite):
             self.acc.x = PLAYER_ACCELERATION
             self.left = False
             self.right = True
+
         else:
             self.walkcount = 0
             self.left = False
@@ -78,10 +89,10 @@ class Player(pg.sprite.Sprite):
         self.pos += self.vel
 
         # замкнутое пространсвто по горизонтали
-        if self.pos.x > WIDTH:
-            self.pos.x = 0
-        if self.pos.x < 0:
-            self.pos.x = WIDTH
+        if self.pos.x > WIDTH + self.width // 5:
+            self.pos.x = 0 - self.width // 5
+        if self.pos.x < 0 - self.width // 5:
+            self.pos.x = WIDTH + self.width // 5
 
         self.rect.midbottom = self.pos
 
@@ -129,10 +140,17 @@ class Player(pg.sprite.Sprite):
 
 
 class Platform(pg.sprite.Sprite):
-    def __init__(self, color, x, y, w, h):
+    def __init__(self, game, color, x, y, w, h):
         pg.sprite.Sprite.__init__(self)
+        self.game = game
         self.w, self.h = w, h
         self.color = color
+        if self.color == GREEN:
+            self.run_platform = True
+            self.vel = random.choice(range(2, 4))
+        if self.color == WHITE:
+            self.clearcount = 0
+            self.clear = False
         self.image = pg.Surface((w, h))
         self.image.set_colorkey((BLACK))
         self.rect = self.image.get_rect()
@@ -142,8 +160,25 @@ class Platform(pg.sprite.Sprite):
     def update(self):
         if self.color == GREY:
             pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h])
+        elif self.color == GREEN:
+            self.rect.x += self.vel
+            if self.rect.x >= WIDTH - self.w:
+                self.vel =- self.vel
+            if self.rect.x <= 0:
+                self.vel = abs(self.vel)
+            pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h], 5)
+
+        elif self.color == WHITE:
+            if self.clear:
+                self.clearcount += 1
+                if self.clearcount > FPS // 2:
+                    self.kill()
+                    self.game.add_new_platform(-270)
+            pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h])
         else:
             pg.draw.rect(self.image, self.color, [0, 0, self.w, self.h], 5)
+
+
 
 
 class Background(pg.sprite.Sprite):

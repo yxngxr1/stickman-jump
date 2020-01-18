@@ -51,4 +51,4 @@ START_MAP = [(GREY, 0, HEIGHT - 100, WIDTH, 100),
              (LIGHTGREY, 50, HEIGHT - 220, 100, 20),
              (LIGHTGREY, 300, HEIGHT - 340, 100, 20),
              (LIGHTGREY, 50, HEIGHT - 460, 100, 20),
-             (LIGHTGREY, 300, HEIGHT - 580, 100, 20)]
+             (LIGHTGREY, 300, HEIGHT - 580, 100, 20),]

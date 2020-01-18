@@ -18,7 +18,7 @@ class Button:
         self.draw_rect()
 
     def draw_text(self):
-        self.game.draw_text(self.text, self.size_font, self.color, self.x, self.y)
+        self.game.draw_text_mid(self.text, self.size_font, self.color, self.x, self.y)
 
     def draw_rect(self):
         x = self.x_rect

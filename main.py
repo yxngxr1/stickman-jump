@@ -86,7 +86,7 @@ class Game:
         self.all_sprites.add(self.background1, self.background2, self.player)
 
         for i in START_MAP:
-            p = Platform(*i)
+            p = Platform(self, *i)
             self.all_sprites.add(p)
             self.platforms.add(p)
 
@@ -133,8 +133,12 @@ class Game:
             hits = pg.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
                 object = hits[0].rect
-                if self.player.pos.y < object.bottom + object.height // 2:
+                if self.player.pos.y < object.bottom + object.height:
                     self.player.pos.y = object.top
+
+                    # добавить к скорости игрока скорость платформы на которой он стоит
+                    if hits[0].color == GREEN:
+                        self.player.pos.x += hits[0].vel
                     self.player.vel.y = 0
                     self.player.OnGround = True
             else:
@@ -153,22 +157,13 @@ class Game:
             self.score += abs(int(self.player.vel.y))
 
         # добавление новых платформ
-        while len(self.platforms) < 6:
-            w = random.choice([60, 80, 100])
-            h = 20
-            x = random.randrange(20, WIDTH - w - 20)
-            y = -20
-            color = random.choice([BLUE, LIGHTBLUE, RED, GREEN, LIGHTGREY])
-            p = Platform(color, x, y, w, h)
-            self.platforms.add(p)
-            self.all_sprites.add(p)
+        self.add_new_platform(-20)
 
         # смерть игрока
         if self.player.rect.top > HEIGHT:
             if self.death is False:
                 self.death = True
                 self.death_sound.play()
-
             # если герой вышел за экран внизу,
             # то все предметы улетают наверх с его же скоростью
             for i in self.all_sprites:
@@ -181,21 +176,33 @@ class Game:
 
     def draw(self):
         self.all_sprites.draw(self.screen)
-        self.draw_text(f'Набрано очков: {self.score}', 28, RED, WIDTH / 2, 15)
+        self.draw_text_mid(f'Набрано очков: {self.score}', 28, RED, WIDTH / 2, 15)
         pg.display.flip()
+
+    def add_new_platform(self, y):
+        if len(self.platforms) < 6:
+            w = random.choice([60, 80, 100])
+            h = 20
+            x = random.randrange(20, WIDTH - w - 20)
+            y = y
+            color = random.choice([BLUE, RED, GREEN, WHITE])
+            p = Platform(self, color, x, y, w, h)
+            self.platforms.add(p)
+            self.all_sprites.add(p)
 
     def menu_screen(self):
         self.menu_screen_run = True
         self.screen.fill(LIGHTGREY)
-        self.draw_text("Stickman Jump", 64, WHITE, WIDTH // 2, 20)
-        self.draw_text("Рекорд: " + str(self.highscore), 24, WHITE, WIDTH // 2, 100)
+        self.draw_text_mid("Stickman Jump", 64, WHITE, WIDTH // 2, 20)
+        self.draw_text_mid("Рекорд: " + str(self.highscore), 24, WHITE, WIDTH // 2, 100)
+        self.draw_text_mid("v.0.1", 24, WHITE, 40, HEIGHT - 40)
         # кнопки
         self.btn_play = Button(self, "Играть", 48, BUTTON_SIZE, WHITE, RED, LIGHTBLUE, WIDTH // 2, HEIGHT // 3)
         self.btn_settings = Button(self, "Настройки", 48, BUTTON_SIZE, WHITE, RED, LIGHTBLUE, WIDTH // 2, HEIGHT // 3 + 100)
-        self.btn_exit_menu = Button(self, "Выйти из игры", 48, BUTTON_SIZE, WHITE, RED, LIGHTBLUE, WIDTH // 2, HEIGHT // 3 + 200)
-        self.draw_text("v.0.1", 24, WHITE, 40, HEIGHT - 40)
+        self.btn_info = Button(self, "Информация", 48, BUTTON_SIZE , WHITE, RED, LIGHTBLUE, WIDTH // 2, HEIGHT // 3 + 200)
+        self.btn_exit_menu = Button(self, "Выйти из игры", 48, BUTTON_SIZE, WHITE, RED, LIGHTBLUE, WIDTH // 2, HEIGHT // 3 + 300)
 
-        buttons = [self.btn_play, self.btn_settings, self.btn_exit_menu]
+        buttons = [self.btn_play, self.btn_settings, self.btn_exit_menu, self.btn_info]
 
         while self.menu_screen_run:
             button_pressed = self.wait_for_press(buttons, 'menu')
@@ -213,16 +220,20 @@ class Game:
                 self.running = False
                 pg.quit()
 
+            elif button_pressed == self.btn_info:
+                self.menu_screen_run = False
+                self.info_screen()
+
             if self.running:
                 pg.display.flip()
 
     def settings_screen(self):
         self.settings_screen_run = True
         self.screen.fill(LIGHTGREY)
-        self.draw_text("Управление", 64, WHITE, WIDTH // 2, 20)
-        self.draw_text("–> - вправо", 32, WHITE, WIDTH // 2, 110)
-        self.draw_text("<– - влево", 32, WHITE, WIDTH // 2, 150)
-        self.draw_text("Space - прыжок", 32, WHITE, WIDTH // 2, 190)
+        self.draw_text_mid("Управление", 64, WHITE, WIDTH // 2, 20)
+        self.draw_text_mid("–> - вправо", 32, WHITE, WIDTH // 2, 110)
+        self.draw_text_mid("<– - влево", 32, WHITE, WIDTH // 2, 150)
+        self.draw_text_mid("Space - прыжок", 32, WHITE, WIDTH // 2, 190)
         # кнопки
         self.btn_sound_on_off = Button(self, self.str_sound_on_off, 36, BUTTON_SIZE, WHITE, RED, LIGHTBLUE, WIDTH // 2, HEIGHT // 3 + 100 - 40)
         self.btn_music_on_off = Button(self, self.str_music_on_off, 36, BUTTON_SIZE, WHITE, RED, LIGHTBLUE, WIDTH // 2, HEIGHT // 3 + 190 - 40)
@@ -264,12 +275,49 @@ class Game:
             if self.running:
                 pg.display.flip()
 
+    def info_screen(self):
+        self.info_screen_run = True
+        self.screen.fill(LIGHTGREY)
+        pg.draw.rect(self.screen, GREEN, (WIDTH // 4 - 10, 230 + 6, 100, 20), 3)
+        pg.draw.rect(self.screen, WHITE, (WIDTH // 4 - 10, 260 + 6, 100, 20), 3)
+        pg.draw.rect(self.screen, RED, (WIDTH // 4 - 10, 290 + 6, 100, 20), 3)
+        pg.draw.rect(self.screen, BLUE, (WIDTH // 4 - 10, 320 + 6, 100, 20), 3)
+
+        self.draw_text_mid("Управление", 50, WHITE, WIDTH // 2, 10)
+        self.draw_text_mid("–> - вправо", 28, WHITE, WIDTH // 2, 70)
+        self.draw_text_mid("<– - влево", 28, WHITE, WIDTH // 2, 100)
+        self.draw_text_mid("Space - прыжок", 28, WHITE, WIDTH // 2, 130)
+
+        self.draw_text_mid("Платформы", 50, WHITE, WIDTH // 2, 170)
+        self.draw_text("–  двигаются", 28, WHITE, WIDTH // 2 - 15, 230)
+        self.draw_text("–  исчезают", 28, WHITE, WIDTH // 2 - 15, 260)
+        self.draw_text("–  отталкивают", 28, WHITE, WIDTH // 2 - 15, 290)
+        self.draw_text("–  стоят на месте", 28, WHITE, WIDTH // 2 - 15, 320)
+
+        self.draw_text_mid("Бонусы", 50, WHITE, WIDTH // 2, 360)
+        self.draw_text_mid("сильный прыжок", 28, WHITE, WIDTH // 2, 420)
+        self.draw_text_mid("маленькая гравитация", 28, WHITE, WIDTH // 2, 450)
+        self.draw_text_mid("Создатель: Yxngxr1 (Георгий Дерганов)", 25, LIGHTRED, WIDTH // 2, HEIGHT - 40)
+        # кнопки
+        self.btn_menu = Button(self, "Назад", 48, (int(BUTTON_SIZE[0] // 1.5), BUTTON_SIZE[1]), WHITE, RED, LIGHTBLUE, WIDTH // 2, HEIGHT // 3 + 370 - 20)
+
+        buttons = [self.btn_menu]
+
+        while self.info_screen_run:
+            button_pressed = self.wait_for_press(buttons, 'info')
+            if button_pressed == self.btn_menu:
+                self.info_screen_run = False
+                self.menu_screen()
+
+            if self.running:
+                pg.display.flip()
+
     def gameover_screen(self):
         self.gameover_screen_run = True
         self.play_music('gameover')
         self.screen.fill(LIGHTGREY)
-        self.draw_text("GAME OVER", 82, RED, WIDTH // 2, 20)
-        self.draw_text("Очков: " + str(self.score), 24, WHITE, WIDTH // 2, 120)
+        self.draw_text_mid("GAME OVER", 82, RED, WIDTH // 2, 20)
+        self.draw_text_mid("Очков: " + str(self.score), 24, WHITE, WIDTH // 2, 120)
 
         self.btn_play_again = Button(self, "Играть заново", 48, BUTTON_SIZE, WHITE, RED, LIGHTBLUE, WIDTH // 2, HEIGHT // 3)
         self.btn_menu = Button(self, "Меню", 48, BUTTON_SIZE, WHITE, RED, LIGHTBLUE, WIDTH // 2, HEIGHT // 3 + 100)
@@ -277,11 +325,11 @@ class Game:
 
         if self.score > self.highscore:
             self.highscore = self.score
-            self.draw_text('Ты побил рекорд, поздравляю!', 30, LIGHTBLUE, WIDTH // 2, 160)
+            self.draw_text_mid('Ты побил рекорд, поздравляю!', 30, LIGHTBLUE, WIDTH // 2, 160)
             with open(HIGHSCORE, 'w') as file:
                 file.write(str(self.highscore))
         else:
-            self.draw_text("Рекорд: " + str(self.highscore), 36, LIGHTBLUE, WIDTH // 2, 160)
+            self.draw_text_mid("Рекорд: " + str(self.highscore), 36, LIGHTBLUE, WIDTH // 2, 160)
 
         buttons = [self.btn_play_again, self.btn_menu, self.btn_exit_go]
 
@@ -327,7 +375,7 @@ class Game:
                 for event in pg.event.get():
                     # если проигрывание музыки завершено, запустить другую
                     if event.type == self.music_end:
-                        if window == 'menu' or 'setting':
+                        if window == 'menu' or 'setting' or 'info':
                             self.play_music('menu')
 
                         if window == 'gameover':
@@ -338,6 +386,8 @@ class Game:
                             self.menu_screen_run = False
                         elif window == 'setting':
                             self.settings_screen_run = False
+                        elif window == 'info':
+                            self.info_screen_run = False
                         elif window == 'gameover':
                             self.gameover_screen_run = False
 
@@ -353,11 +403,18 @@ class Game:
 
                 pg.display.flip()
 
-    def draw_text(self, text, size, color, x, y):
+    def draw_text_mid(self, text, size, color, x, y):
         font = pg.font.Font(self.font_name, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x, y)
+        self.screen.blit(text_surface, text_rect)
+
+    def draw_text(self, text, size, color, x, y):
+        font = pg.font.Font(self.font_name, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect = (x, y)
         self.screen.blit(text_surface, text_rect)
 
 
