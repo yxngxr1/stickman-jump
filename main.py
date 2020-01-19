@@ -3,7 +3,7 @@ import random
 from pygame import gfxdraw
 from components import Button
 from settings import *
-from sprites import Platform, Player, Background
+from sprites import Platform, Player, Background, Enemy, load_image
 
 
 class Game:
@@ -83,9 +83,11 @@ class Game:
         self.gravity = PLAYER_GRAVITY
         self.gravity_on_off = True
         self.gravity_count = 0
+        self.enemy_count = 0
         self.all_sprites = pg.sprite.Group()
         self.platforms = pg.sprite.Group()
         self.powerups = pg.sprite.Group()
+        self.enemies = pg.sprite.Group()
 
         self.background1 = Background(self, 0, -HEIGHT)
         self.background2 = Background(self, 0, 0)
@@ -139,6 +141,12 @@ class Game:
     def update(self):
         self.all_sprites.update()
 
+        # спавн врагов по времени
+        now = pg.time.get_ticks()
+        if now - self.enemy_count > 6000 +  random.choice([-1000, -500, 0, 500, 1000]):
+            self.enemy_count = now
+            Enemy(self)
+
         # поставить игрока на платформу при падении
         if self.player.vel.y > 0:
             hits = pg.sprite.spritecollide(self.player, self.platforms, False)
@@ -166,6 +174,11 @@ class Game:
             self.player.pos.y += abs(self.player.vel.y)
             self.background1.rect.y += abs(int(self.player.vel.y * 0.4))
             self.background2.rect.y += abs(int(self.player.vel.y * 0.4))
+            for i in self.enemies:
+                i.rect.y += abs(self.player.vel.y)
+                # удаление врага за экраном
+                if i.rect.top >= HEIGHT:
+                    i.kill()
             for i in self.platforms:
                 i.rect.y += abs(self.player.vel.y)
                 # удаление платформ за экраном
@@ -177,7 +190,7 @@ class Game:
         self.add_new_platform(-20)
 
         # соприкосновение с бонусом
-        powerup_hits = pg.sprite.spritecollide(self.player, self.powerups, True)
+        powerup_hits = pg.sprite.spritecollide(self.player, self.powerups, True, pg.sprite.collide_mask)
         for powerup in powerup_hits:
             if powerup.type == 'big jump':
                 self.powerup_sound.play()
@@ -195,6 +208,12 @@ class Game:
             if self.gravity_count >= 600:
                 self.gravity_count = 0
                 self.gravity_on_off = True
+
+        # соприкосновение с врагом
+        enemy_hits = pg.sprite.spritecollide(self.player, self.enemies, False, pg.sprite.collide_mask)
+        if enemy_hits:
+            self.death_sound.play()
+            self.playing = False
 
         # смерть игрока
         if self.player.rect.top > HEIGHT:
@@ -234,7 +253,7 @@ class Game:
         self.screen.fill(LIGHTGREY)
         self.draw_text_mid("Stickman Jump", 64, WHITE, WIDTH // 2, 20)
         self.draw_text_mid("Рекорд: " + str(self.highscore), 24, WHITE, WIDTH // 2, 100)
-        self.draw_text_mid("v.0.1", 24, WHITE, 40, HEIGHT - 40)
+        self.draw_text_mid("v.1.0", 24, WHITE, 40, HEIGHT - 40)
         # кнопки
         self.btn_play = Button(self, "Играть", 48, BUTTON_SIZE, WHITE, LIGHTGREEN, LIGHTBLUE, WIDTH // 2, HEIGHT // 3)
         self.btn_settings = Button(self, "Настройки", 48, BUTTON_SIZE, WHITE, LIGHTBLUE, LIGHTBLUE, WIDTH // 2, HEIGHT // 3 + 100)
@@ -323,6 +342,7 @@ class Game:
         gfxdraw.filled_circle(self.screen, WIDTH // 4 - 20, 390 + 18, 12, YELLOW)
         gfxdraw.aacircle(self.screen, WIDTH // 4 - 20, 420 + 18, 12,  VIOLET)
         gfxdraw.filled_circle(self.screen, WIDTH // 4 - 20, 420 + 18, 12,  VIOLET)
+        self.screen.blit(pg.transform.scale(load_image('enemy/enemy.png'), (50, 75)), (155, 500))
 
         self.draw_text_mid("Управление", 50, WHITE, WIDTH // 2, 10)
         self.draw_text_mid("–> - вправо", 28, WHITE, WIDTH // 2, 70)
@@ -337,7 +357,13 @@ class Game:
         self.draw_text_mid("Бонусы", 50, WHITE, WIDTH // 2, 330)
         self.draw_text("–  ускоритель", 28, WHITE, WIDTH // 3 - 30, 390)
         self.draw_text("–  слабая сила тяжести", 28, WHITE, WIDTH // 3 - 30, 420)
+
+        self.draw_text_mid("Враги", 50, WHITE, WIDTH // 2, 460)
+        self.draw_text("–  клякса", 28, WHITE, WIDTH // 2 - 30, 520)
+
         self.draw_text_mid("Создатель: Yxngxr1 (Георгий Дерганов)", 25, (150, 150, 150), WIDTH // 2, HEIGHT - 40)
+
+
 
         # кнопки
         self.btn_menu = Button(self, "Назад", 48, (int(BUTTON_SIZE[0] // 1.5), BUTTON_SIZE[1]), WHITE, LIGHTBLUE, LIGHTBLUE, WIDTH // 2, HEIGHT // 3 + 370 - 20)

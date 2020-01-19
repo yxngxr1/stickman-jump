@@ -127,7 +127,7 @@ class Player(pg.sprite.Sprite):
                             self.image = self.fallRight_images[self.fallcount // FPS]
                         elif (self.fallcount // FPS) in range(2, 4) and self.vel.y > PLAYER_GRAVITY + FPS // 6:
                             self.image = self.fallLeft_images[self.fallcount // FPS - 2]
-
+        self.mask = pg.mask.from_surface(self.image)
         if self.jumpcount > FPS // 3:
             self.jumping = False
             self.jumpcount = 0
@@ -222,5 +222,42 @@ class Powerup(pg.sprite.Sprite):
         elif self.type == 'small gravity':
             gfxdraw.aacircle(self.image, 12, 12, 12, VIOLET)
             gfxdraw.filled_circle(self.image, 12, 12, 12, VIOLET)
+        self.mask = pg.mask.from_surface(self.image)
         if not self.game.platforms.has(self.platform):
+            self.kill()
+
+
+class Enemy(pg.sprite.Sprite):
+    def __init__(self, game):
+        self.groups = game.all_sprites, game.enemies
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image_left = pg.transform.scale(load_image('enemy/enemy.png'), (50, 75))
+        self.image_right = pg.transform.scale(pg.transform.flip(load_image('enemy/enemy.png'), True, False), (50, 75))
+
+        self.image = self.image_right
+        self.rect = self.image.get_rect()
+
+        self.rect.centerx = random.choice([-150, WIDTH + 150])
+        self.rect.y = random.randrange(HEIGHT // 3) - random.choice([-100, 100, 300, 500])
+        self.vx = random.choice([1, 1.5, 2, 2.5, 3])
+        if self.rect.centerx > WIDTH:
+            self.vx = -self.vx
+        self.vy = 0
+        self.dy = random.choice([0.2, 0.3, 0.4])
+        self.dmax = random.choice([2, 3, 4])
+
+    def update(self):
+        self.rect.x += self.vx
+        self.vy += self.dy
+        if self.vy >= self.dmax or self.vy <= -self.dmax:
+            self.dy = -self.dy
+
+        if self.vx < 0:
+            self.image = self.image_left
+        else:
+            self.image = self.image_right
+        self.mask = pg.mask.from_surface(self.image)
+        self.rect.y += self.vy
+        if self.rect.left > WIDTH + 500 or self.rect.right < - 500:
             self.kill()
