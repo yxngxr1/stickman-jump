@@ -361,7 +361,7 @@ class Game:
         self.draw_text_mid("Враги", 50, WHITE, WIDTH // 2, 460)
         self.draw_text("–  клякса", 28, WHITE, WIDTH // 2 - 30, 520)
 
-        self.draw_text_mid("Создатель: Yxngxr1 (Георгий Дерганов)", 25, (150, 150, 150), WIDTH // 2, HEIGHT - 40)
+        self.draw_text_mid("© 2020, Yxngxr1, Георгий Дерганов", 25, (150, 150, 150), WIDTH // 2, HEIGHT - 40)
 
 
 

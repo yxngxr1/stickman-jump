@@ -240,7 +240,7 @@ class Enemy(pg.sprite.Sprite):
 
         self.rect.centerx = random.choice([-150, WIDTH + 150])
         self.rect.y = random.randrange(HEIGHT // 3) - random.choice([-100, 100, 300, 500])
-        self.vx = random.choice([1, 1.5, 2, 2.5, 3])
+        self.vx = random.choice([1, 1.5, 2, 2.5])
         if self.rect.centerx > WIDTH:
             self.vx = -self.vx
         self.vy = 0
