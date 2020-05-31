@@ -6,12 +6,12 @@
 
 ### Requirements
 
-* **python 3.8.3**
+* **python 3.8.x**
 * **pygame 1.9.6**
 
 ### Installing & run
 1. Install Python 3.x
-2. ~~Clone the repository~~ or Download as zip and extract
+2. Clone the repository or download as zip and extract
 3. In the root directory "stickman-jump" run
 
 ```bash
