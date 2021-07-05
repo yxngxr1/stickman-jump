@@ -6,7 +6,7 @@
 
 ### Requirements
 
-* **python 3.x*
+* **python 3.x**
 * **pygame**
 
 ### Installing & run
