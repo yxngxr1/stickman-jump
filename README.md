@@ -6,8 +6,8 @@
 
 ### Requirements
 
-* **python 3.8.x**
-* **pygame 1.9.6**
+* **python 3.x*
+* **pygame**
 
 ### Installing & run
 1. Install Python 3.x
